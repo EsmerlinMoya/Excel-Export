@@ -1,0 +1,109 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Data;
+using System.Xml;
+using System.Xml.Xsl;
+using System.IO;
+using System.Threading;
+using System.Globalization;
+//using System.Windows.Forms;
+//using System.Drawing;
+using Excel = Microsoft.Office.Interop.Excel;
+
+
+public class ExportExcel2D
+{
+    public static void Export(DataTable dtable, string fname)
+    {
+        build(dtable, fname);
+    }
+    //public static int ConvertColour(Color colour)
+    //{
+    //    int r = colour.R;
+    //    int g = colour.G * 256;
+    //    int b = colour.B * 65536;
+
+    //    return r + g + b;
+    //}
+
+    private static void build(DataTable dt, string fname)
+    {
+        //Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("es-DO");
+        //Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("es-DO");
+        object Missing = System.Reflection.Missing.Value;
+        // Start Excel and get Application object.
+        Excel.Application oXL = new Excel.Application();
+        // Get a new workbook. 
+        Excel.Workbook oWB = oXL.Workbooks.Add(Missing);
+        Excel.Worksheet oSheet;
+
+        try
+        {
+            // Set some properties 
+            oXL.Visible = false;
+            oXL.DisplayAlerts = false;
+
+            // Get the Active sheet 
+            oSheet = (Excel.Worksheet)oWB.ActiveSheet;
+            oSheet.Name = "Data";
+
+
+            int col = 1;
+            foreach (DataColumn c in dt.Columns)
+            {
+                oSheet.Cells[1, col] = c.ColumnName;
+                col++;
+            }
+
+            // Create a 2D array with the data from the table
+            int i = 0;
+            object[,] data = new object[dt.Rows.Count, dt.Columns.Count];
+            foreach (DataRow row in dt.Rows)
+            {
+                int j = 0;
+                foreach (DataColumn c in dt.Columns)
+                {
+                    data[i, j] = row[c].ToString();
+                    j++;
+                }
+                i++;
+            }
+
+            // Set the range value to the 2D array
+            oSheet.Range[oSheet.Cells[2, 1], oSheet.Cells[dt.Rows.Count + 1, dt.Columns.Count]].value = data;
+
+
+            oSheet.Cells.EntireColumn.AutoFit();// auto fit to the cell actual content
+            // Resize the columns 
+            //oRange = oSheet.get_Range(oSheet.Cells[1, 1],oSheet.Cells[rowCount, dt.Columns.Count]);
+            //oRange.EntireColumn.AutoFit();
+            // Save the sheet and close 
+
+        }
+        catch
+        {
+            throw;
+        }
+        finally
+        {
+            oSheet = null;
+            //oRange = null;
+            oWB.SaveAs(fname, Excel.XlFileFormat.xlOpenXMLWorkbook, Missing, Missing, Missing, Missing,
+                Excel.XlSaveAsAccessMode.xlExclusive, Missing, Missing, Missing, Missing, Missing);
+
+            oWB = null;
+            oXL.Quit();
+            // Clean up 
+            // NOTE: When in release mode, this does the trick 
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
+            //MessageBox.Show("PROCESO COMPLETADO", "FIN", MessageBoxButtons.OK, MessageBoxIcon.Information);
+        }
+
+
+    }
+}
