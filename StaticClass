@@ -8,8 +8,6 @@ using System.Xml.Xsl;
 using System.IO;
 using System.Threading;
 using System.Globalization;
-//using System.Windows.Forms;
-//using System.Drawing;
 using Excel = Microsoft.Office.Interop.Excel;
 
 
@@ -19,19 +17,9 @@ public class ExportExcel2D
     {
         build(dtable, fname);
     }
-    //public static int ConvertColour(Color colour)
-    //{
-    //    int r = colour.R;
-    //    int g = colour.G * 256;
-    //    int b = colour.B * 65536;
-
-    //    return r + g + b;
-    //}
 
     private static void build(DataTable dt, string fname)
     {
-        //Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("es-DO");
-        //Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo("es-DO");
         object Missing = System.Reflection.Missing.Value;
         // Start Excel and get Application object.
         Excel.Application oXL = new Excel.Application();
